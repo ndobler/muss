@@ -8,6 +8,8 @@ package com.nd.pgm.operator;
  */
 abstract class AbstractOperator implements IOperator {
 
+    protected int executionCount = 0;
+
     @Override
     public int compute(int pixel1, int pixel2) {
         assert false : "Should not get here";
@@ -17,6 +19,10 @@ abstract class AbstractOperator implements IOperator {
     @Override
     public int compute(int pixel) {
         assert false : "Should not get here";
+        return 0;
+    }
+
+    public int getExecutionCount() {
         return 0;
     }
 

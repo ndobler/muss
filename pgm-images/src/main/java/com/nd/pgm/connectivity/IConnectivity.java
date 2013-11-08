@@ -17,10 +17,11 @@ public interface IConnectivity {
      * @param imageData the matrix with imageData
      * @param i vertical position where to calculate the operation
      * @param j horizontal position where to calculate the operation
-     * @param size size of the structuring element
+     * @param vsize vertical size of the structuring element
+     * @param hsize horizontal size of the structuring element
      * @param operator operation to compute
      * @return value of the output pixel
      */
-    public int compute(int[][] imageData, int i, int j, int size, IOperator operator);
+    public int compute(int[][] imageData, int i, int j, int vsize, int hsize, IOperator operator);
 
 }

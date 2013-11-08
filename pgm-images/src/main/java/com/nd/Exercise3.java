@@ -50,6 +50,26 @@ import com.nd.pgm.PGMImageException;
  * (I))) dil_B (I) = inv (ero_B (inv (I))) where B is the 3x3 square structuring element, and I is the image
  * immed_gray_inv.pgm
  * 
+ * ---------------------------------------------------------------
+ * 
+ * Exercise 3.4 In this exercise we are going to compare the number of operations in two alternatives for computing a
+ * morphological dilation with structuring element.
+ * 
+ * Let B be the MxM square structuring element. Let C be the 1xM 1-D horizontal structuring element. x...xXx...x (Note:
+ * the number of pixels is M.) Let D be the Mx1 1-D vertical structuring element. x . . . x X x . . . x (Note: the
+ * number of pixels is M.)
+ * 
+ * 'X' denotes the origin of coordinates or center of the structuring element.
+ * 
+ * It can be observed that B = dilate_C (D) = dilate_D (C).
+ * 
+ * Estimate the number or 'max' operations that must be computed in order to process a NxN square input image using the
+ * following alternatives: dilate_B (I)) dilate_C(dilate_D (I)))
+ * 
+ * Assume that the sizes of B, C and D are, respectively: MxM, 1xM y Mx1. Border effects should not be considered for
+ * simplicity, i.e., all image pixels should be treated in the same manner.
+ * 
+ * 
  * @author Nicolás Dobler
  */
 public class Exercise3 {
@@ -154,6 +174,9 @@ public class Exercise3 {
         outDilation.saveImage("target/dil" + size + ".pgm");
         outDilationOpt.saveImage("target/dil" + size + "opt.pgm");
         System.out.println("compare " + outDilation.equals(outDilationOpt));
+        
+        // number of operations comparison - Exercise 3.4
+        
     }
 
     private static void inversionTest() throws IOException, PGMImageException {

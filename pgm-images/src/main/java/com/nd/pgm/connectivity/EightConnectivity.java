@@ -5,12 +5,18 @@ import com.nd.pgm.operator.IOperator;
 public class EightConnectivity implements IConnectivity {
 
     @Override
-    public int compute(int[][] imageData, int i, int j, int size, IOperator operator) {
+    public int compute(int[][] imageData, int i, int j, int vsize, int hsize, IOperator operator) {
+        assert vsize % 2 == 1 : "vsize must be odd";
+        assert hsize % 2 == 1 : "vsize must be odd";
+
         int outPixel = imageData[i][j];
         int height = imageData.length;
         int width = imageData[0].length;
-        for (int ii = (i - size) < 0 ? 0 : (i - size); ii <= ((i + size) > height - 1 ? (height - 1) : (i + size)); ii++) {
-            for (int jj = (j - size) < 0 ? 0 : (j - size); jj <= ((j + size) > width - 1 ? (width - 1) : (j + size)); jj++) {
+
+        int hRatio = vsize / 2;
+        int vRatio = hsize / 2;
+        for (int ii = (i - vRatio) < 0 ? 0 : (i - vRatio); ii <= ((i + vRatio) > height - 1 ? (height - 1) : (i + vRatio)); ii++) {
+            for (int jj = (j - hRatio) < 0 ? 0 : (j - hRatio); jj <= ((j + hRatio) > width - 1 ? (width - 1) : (j + hRatio)); jj++) {
                 try {
                     outPixel = operator.compute(outPixel, imageData[ii][jj]);
                 } catch (IndexOutOfBoundsException ex) {

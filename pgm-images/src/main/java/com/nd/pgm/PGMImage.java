@@ -465,12 +465,12 @@ public class PGMImage {
      * @param operator operation to compute
      * @return the image with the operation applied
      */
-    private PGMImage computeOperationWithStructuringElement(int size, IConnectivity connectivityVisitor, IOperator operator) {
+    private PGMImage computeOperationWithStructuringElement(String squareSize, IConnectivity connectivityVisitor, IOperator operator) {
         PGMImage outputImage = new PGMImage(this);
         int[][] od = outputImage.getImageData();
         for (int i = 0; i < this.imageData.length; i++) {
             for (int j = 0; j < this.imageData[i].length; j++) {
-                od[i][j] = connectivityVisitor.compute(this.imageData, i, j, size, operator);
+                od[i][j] = connectivityVisitor.compute(this.imageData, i, j, 2 * squareSize + 1, 2 * squareSize + 1, operator);
             }
         }
         return outputImage;
