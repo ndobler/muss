@@ -12,7 +12,6 @@ public class InfOperator extends AbstractOperator {
      */
     @Override
     public int compute(int pixel1, int pixel2) {
-        executionCount++;
         return pixel1 < pixel2 ? pixel1 : pixel2;
     }
 

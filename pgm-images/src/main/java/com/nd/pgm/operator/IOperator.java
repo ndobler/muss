@@ -25,6 +25,4 @@ public interface IOperator {
      */
     public int compute(int pixel);
 
-    public abstract int getExecutionCount();
-
 }
