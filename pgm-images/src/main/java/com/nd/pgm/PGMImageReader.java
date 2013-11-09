@@ -92,7 +92,7 @@ class PGMImageReader {
             // creo un string a partir del byte leido
             String charString = new String(new char[] { (char) c });
             // comparon con delimitadores de linea para determinar si terminé de leer la linea
-            if ("\n".equals(charString) || "\r".equals(charString))
+            if ("\n".equals(charString) || "\r".equals(charString) || " ".equals(charString))
                 break;
             else
                 bb.put((byte) c);

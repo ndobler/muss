@@ -552,4 +552,32 @@ public class PGMImage {
         return oi;
     }
 
+    /**
+     * Returns a filtered image with an opening of this image of size size.
+     * 
+     * @param size size of the filter
+     * @return the filtered image
+     */
+    public PGMImage imOpening(int size) throws PGMImageException {
+        return imInversion().imDilation(size).imErosion(size).imInversion();
+    }
+
+    /**
+     * Returns a filtered image with a closing of this image of size size.
+     * 
+     * @param size size of the filter
+     * @return the filtered image
+     */
+    public PGMImage imClosing(int size) throws PGMImageException {
+        return imInversion().imErosion(size).imDilation(size).imInversion();
+    }
+
+    public PGMImage imOpeningClosing(int size) throws PGMImageException {
+        return this.imClosing(size).imOpening(size);
+    }
+
+    public PGMImage imClosingOpening(int size) throws PGMImageException {
+        return this.imOpening(size).imClosing(size);
+    }
+
 }
