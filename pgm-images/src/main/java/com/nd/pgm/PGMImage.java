@@ -384,7 +384,8 @@ public class PGMImage {
      * @throws PGMImageException
      */
     public PGMImage imErosionFB(int size) {
-        PGMImage oi = computeOperationWithStructuringElement(size, new EightConnectivity(), new InfOperator());
+        int sEDimensions = 2 * size + 1;
+        PGMImage oi = computeOperationWithStructuringElement(sEDimensions, sEDimensions, new EightConnectivity(), new InfOperator());
         oi.appendComment("Eroded with " + size + " sized structuring element");
         return oi;
     }
@@ -399,7 +400,8 @@ public class PGMImage {
      * @throws PGMImageException
      */
     public PGMImage imDilationFB(int size) {
-        PGMImage oi = computeOperationWithStructuringElement(size, new EightConnectivity(), new SupOperator());
+        int sEDimensions = 2 * size + 1;
+        PGMImage oi = computeOperationWithStructuringElement(sEDimensions, sEDimensions, new EightConnectivity(), new SupOperator());
         oi.appendComment("Dilated with " + size + " sized structuring element");
         return oi;
     }
@@ -414,7 +416,7 @@ public class PGMImage {
      * @throws PGMImageException
      */
     public PGMImage imErosion(int size) throws PGMImageException {
-        PGMImage oi = erosionDilationAlgorithm(size, new EightConnectivity(), new InfOperator());
+        PGMImage oi = erosionDilation1MN1(size, new EightConnectivity(), new InfOperator());
         oi.appendComment("Eroded with size " + size + " structuring element");
         return oi;
     }
@@ -429,7 +431,7 @@ public class PGMImage {
      * @throws PGMImageException
      */
     public PGMImage imDilation(int size) throws PGMImageException {
-        PGMImage oi = erosionDilationAlgorithm(size, new EightConnectivity(), new SupOperator());
+        PGMImage oi = erosionDilation1MN1(size, new EightConnectivity(), new SupOperator());
         oi.appendComment("Dilated with size " + size + " structuring element");
         return oi;
     }
@@ -445,14 +447,34 @@ public class PGMImage {
      * @return the image with the operation applied
      * @throws PGMImageException
      */
-    private PGMImage erosionDilationAlgorithm(int size, IConnectivity visitor, IOperator operator) throws PGMImageException {
-        assert size >= 0 : "Can't apply less than size 1 operation";
+    @SuppressWarnings("unused")
+    private PGMImage erosionDilationRecursive(int size, IConnectivity visitor, IOperator operator) throws PGMImageException {
+        assert size > 0 : "Can't apply less than size 1 operation";
 
         if (size == 1) {
-            return computeOperationWithStructuringElement(size, visitor, operator);
+            return computeOperationWithStructuringElement(3, 3, visitor, operator);
         } else {
-            return computeOperationWithStructuringElement(1, visitor, operator).erosionDilationAlgorithm(size - 1, visitor, operator);
+            return computeOperationWithStructuringElement(3, 3, visitor, operator).erosionDilationRecursive(size - 1, visitor, operator);
         }
+    }
+
+    /**
+     * Calculates erosions and dilations with NxM structuring elements dividing the operation in two 1xM and Nx1
+     * operations.
+     * 
+     * Exercise 3.4
+     * 
+     * @param size structuring element size
+     * @param visitor connectivity helper
+     * @param operator operation to compute
+     * @return the image with the operation applied
+     * @throws PGMImageException
+     */
+    private PGMImage erosionDilation1MN1(int size, IConnectivity visitor, IOperator operator) throws PGMImageException {
+        assert size > 0 : "Can't apply less than size 1 operation";
+
+        int seSize = 2 * size + 1;
+        return computeOperationWithStructuringElement(1, seSize, visitor, operator).computeOperationWithStructuringElement(seSize, 1, visitor, operator);
     }
 
     /**
@@ -460,17 +482,18 @@ public class PGMImage {
      * 
      * Exercise 3.1 and 3.2.
      * 
-     * @param size structuring element size
+     * @param sEHeight height of structuring element
+     * @param sEWidth width of structuring element
      * @param connectivityVisitor helper class to compute the connectivity
      * @param operator operation to compute
      * @return the image with the operation applied
      */
-    private PGMImage computeOperationWithStructuringElement(String squareSize, IConnectivity connectivityVisitor, IOperator operator) {
+    private PGMImage computeOperationWithStructuringElement(int sEHeight, int sEWidth, IConnectivity connectivityVisitor, IOperator operator) {
         PGMImage outputImage = new PGMImage(this);
         int[][] od = outputImage.getImageData();
         for (int i = 0; i < this.imageData.length; i++) {
             for (int j = 0; j < this.imageData[i].length; j++) {
-                od[i][j] = connectivityVisitor.compute(this.imageData, i, j, 2 * squareSize + 1, 2 * squareSize + 1, operator);
+                od[i][j] = connectivityVisitor.compute(this.imageData, i, j, sEHeight, sEWidth, operator);
             }
         }
         return outputImage;
