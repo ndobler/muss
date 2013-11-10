@@ -23,7 +23,7 @@ public class EightConnectivity implements IConnectivity {
             int hEnd = j + hRatio > width - 1 ? (width - 1) : (j + hRatio);
             for (int jj = hStart; jj <= hEnd; jj++) {
                 try {
-                    outPixel = computeOperator(operator, outPixel, imageData[ii][jj]);
+                    outPixel = computeOperator(operator, outPixel, imageData[ii][jj], i, j, ii, jj);
                 } catch (IndexOutOfBoundsException ex) {
                     assert false : "No deberia saltar " + ex;
                 }
@@ -32,8 +32,8 @@ public class EightConnectivity implements IConnectivity {
         return outPixel;
     }
 
-    protected int computeOperator(IOperator operator, int pixel1, int pixel2) {
-        return operator.compute(pixel1, pixel2);
+    protected int computeOperator(IOperator operator, int pixel1, int pixel2, int p1y, int p1x, int p2y, int p2x) {
+        return operator.compute(pixel1, pixel2, p1y, p1x, p2y, p2x);
     }
 
 }
