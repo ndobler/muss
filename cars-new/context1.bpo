@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="d" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poPredicate name="e" org.eventb.core.predicate="d∈ℕ" org.eventb.core.source="/cars-new/context0.buc|org.eventb.core.contextFile#context0|org.eventb.core.axiom#("/>
+<org.eventb.core.poPredicate name="f" org.eventb.core.predicate="d&gt;0" org.eventb.core.source="/cars-new/context0.buc|org.eventb.core.contextFile#context0|org.eventb.core.axiom#)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/cars-new/context1.bpo|org.eventb.core.poFile#context1|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0"/>
+</org.eventb.core.poFile>
