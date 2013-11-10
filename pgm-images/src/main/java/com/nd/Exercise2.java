@@ -62,9 +62,7 @@ public class Exercise2 {
             thresholdTest();
             normalizationTest();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (PGMImageException e) {
+        } catch (IOException | PGMImageException e) {
             e.printStackTrace();
         }
 

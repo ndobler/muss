@@ -84,7 +84,7 @@ public class Exercise3 {
         private DecimalFormat formatter = new DecimalFormat("###,###.##");
 
         @Override
-        protected int computeOperator(IOperator operator, int pixel1, int pixel2) {
+        protected int computeOperator(IOperator operator, int pixel1, int pixel2, int p1x, int p1y, int p2x, int p2y) {
             operationsCount++;
             return 1;
         }
@@ -109,9 +109,7 @@ public class Exercise3 {
             performanceComparisonTest();
             System.out.println("\nNumber of operations comparison\n");
             exercise34();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (PGMImageException e) {
+        } catch (IOException | PGMImageException e) {
             e.printStackTrace();
         }
 

@@ -1,13 +1,18 @@
 package com.nd.pgm;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import com.nd.pgm.connectivity.EightConnectivity;
+import com.nd.pgm.connectivity.FourConnectivity;
 import com.nd.pgm.connectivity.IConnectivity;
+import com.nd.pgm.connectivity.IConnectivity.Connectivity;
 import com.nd.pgm.operator.IOperator;
 import com.nd.pgm.operator.InfOperator;
 import com.nd.pgm.operator.InversionOperator;
 import com.nd.pgm.operator.NormalizationOperator;
+import com.nd.pgm.operator.ReconstructFlatZone;
 import com.nd.pgm.operator.SupOperator;
 import com.nd.pgm.operator.ThresholdingOperator;
 
@@ -89,7 +94,7 @@ public class PGMImage {
      */
     protected void setImageData(String magicNumber, String comment, int highestDensityValue, int[][] imageData) {
         this.magicNumber = magicNumber;
-        this.comment = comment;
+        setComment(comment);
         this.highestDensityValue = highestDensityValue;
         this.imageData = imageData;
     }
@@ -580,4 +585,18 @@ public class PGMImage {
         return this.imOpening(size).imClosing(size);
     }
 
+    public PGMImage imFlatZone(Pixel p, Connectivity connectivity, int labelFlatZone) {
+        PGMImage outputImage = new PGMImage(this);
+        int[][] od = outputImage.getImageData();
+        od[p.getY()][p.getX()] = labelFlatZone;
+        IConnectivity ic = connectivity == Connectivity.EIGHTCONNECTIVITY ? new EightConnectivity() : new FourConnectivity();
+        Queue<Pixel> q = new LinkedList<>();
+        q.add(p);
+        IOperator operator = new ReconstructFlatZone(od, q, labelFlatZone);
+        while (q.peek() != null) {
+            Pixel currentPixel = q.poll();
+            ic.compute(this.getImageData(), currentPixel.getY(), currentPixel.getX(), 3, 3, operator);
+        }
+        return outputImage;
+    }
 }

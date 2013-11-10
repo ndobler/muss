@@ -11,6 +11,10 @@ import com.nd.pgm.operator.IOperator;
  */
 public interface IConnectivity {
 
+    public enum Connectivity {
+        EIGHTCONNECTIVITY, FOURCONNECTIVITY
+    }
+
     /**
      * Calculates an operator over pixel coordinates i,j on imageDate using a structuring element size size.
      * 

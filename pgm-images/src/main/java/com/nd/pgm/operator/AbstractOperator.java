@@ -9,6 +9,11 @@ package com.nd.pgm.operator;
 abstract class AbstractOperator implements IOperator {
 
     @Override
+    public int compute(int pixel1, int pixel2, int p1y, int p1x, int p2y, int p2x) {
+        return this.compute(pixel1, pixel2);
+    }
+
+    @Override
     public int compute(int pixel1, int pixel2) {
         assert false : "Should not get here";
         return 0;

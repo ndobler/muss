@@ -18,12 +18,9 @@ public class Exercise4 {
             exercise42();
             System.out.println("\nExercise 4.1: Noise removal\n");
             exercise43();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (PGMImageException e) {
+        } catch (IOException | PGMImageException e) {
             e.printStackTrace();
         }
-
     }
 
     /**

@@ -14,6 +14,8 @@ import java.nio.ByteBuffer;
  */
 class PGMImageReader {
 
+    private static final int BUFFER_SIZE = 500;
+
     protected PGMImageReader() {
     }
 
@@ -28,18 +30,17 @@ class PGMImageReader {
         InputStream fis = null;
         try {
             fis = new BufferedInputStream(new FileInputStream(filename));
-            String magicNumber = this.readLine(fis);
+            String magicNumber = this.readLine(fis, 2);
             if (!"P5".equalsIgnoreCase(magicNumber))
                 throw new IOException("Image is not P5");
 
-            // move(fis);
-            fis.mark(4000);
-            String comment = readLine(fis);
-            // si el primer caracter no es # entonces vuelvo a releer la linea ya que no hay comentario y lo que lei era
-            // el tamaño
-            if (!comment.startsWith("#")) {
+            fis.mark(BUFFER_SIZE);
+            boolean containsComment = readCHAR(fis).equals('#');
+            String comment = null;
+            if (containsComment) {
+                comment = readLine(fis, 0);
+            } else {
                 fis.reset();
-                comment = null;
             }
             int width = readNumber(fis);
             int height = readNumber(fis);
@@ -85,14 +86,16 @@ class PGMImageReader {
      * @return the line as a string
      * @throws IOException if there's a problem reading the input stream
      */
-    private String readLine(InputStream fis) throws IOException {
+    private String readLine(InputStream fis, int numberOfChars) throws IOException {
+        if (numberOfChars == 0)
+            numberOfChars = Integer.MAX_VALUE;
         int c;
-        ByteBuffer bb = ByteBuffer.allocate(4000);
-        while ((c = fis.read()) != -1) {
+        ByteBuffer bb = ByteBuffer.allocate(BUFFER_SIZE);
+        while ((c = fis.read()) != -1 && numberOfChars-- > 0) {
             // creo un string a partir del byte leido
             String charString = new String(new char[] { (char) c });
             // comparon con delimitadores de linea para determinar si terminé de leer la linea
-            if ("\n".equals(charString) || "\r".equals(charString) || " ".equals(charString))
+            if ("\n".equals(charString) || "\r".equals(charString))
                 break;
             else
                 bb.put((byte) c);
@@ -117,6 +120,18 @@ class PGMImageReader {
         }
         String s = new String(widthByte).trim();
         return Integer.parseInt(s);
+    }
+
+    /**
+     * Read a number from the input stream
+     * 
+     * @param fis the input stream to read from
+     * @return the number
+     * @throws IOException if there's a problem reading the input stream
+     */
+    private Character readCHAR(InputStream fis) throws IOException {
+        int c = fis.read();
+        return new Character((char) c);
     }
 
 }
