@@ -12,31 +12,158 @@ int boundaryExtraction(const IplImage*);
 int myWatershed(const IplImage*);
 void customSEs(const IplImage *img);
 int usingWatershed(const IplImage* img);
+void test4Watershed_b();
+int prepareMarkers(IplImage* markers_8, IplImage markers_32);
 
 int main(int argc, char** argv) {
 //    const char* imgName= "/Users/nico/Downloads/TestImages/cameraman.png";
-    const char* imgName = "/Users/nico/Downloads/TestImages/coffee_grains.jpg";
+//    const char* imgName = "/Users/nico/Downloads/TestImages/coffee_grains.jpg";
 //    const char* imgName= "/Users/nico/Downloads/TestImages/hitchcock.png";
 //    const char* imgName= "/Users/nico/Downloads/TestImages/Lenna.png";
 //    const char* imgName= "/Users/nico/Downloads/TestImages/particles.png";
 //    const char* imgName= "/Users/nico/Downloads/TestImages/plat.jpg";
 //    const char* imgName= "/Users/nico/Downloads/TestImages/wheel.png";
 //    const char* imgName= "/Users/nico/Downloads/TestImages/white_grains.jpg";
-    IplImage *img = cvLoadImage(imgName, CV_LOAD_IMAGE_UNCHANGED);
+//    IplImage *img = cvLoadImage(imgName, CV_LOAD_IMAGE_UNCHANGED);
+    IplImage* marker = cvLoadImage("/Users/nico/Dropbox/academia/Procesamiento Avanzado de Imagenes/TestImages/coffee_markers.png", CV_LOAD_IMAGE_UNCHANGED);
     cvNamedWindow("Original");
-    cvShowImage("Original", img);
+    cvShowImage("Original", marker);
+    cvWaitKey(0);
 
     // boundaryExtraction(img);
     //myWatershed(img);
     //customSEs(img);
-    usingWatershed(img);
-
-    waitKey(0);
+    // usingWatershed(img);
+    test4Watershed_b();
+    // waitKey(0);
     cvDestroyAllWindows();
-    cvReleaseImage(&img);
+    //cvReleaseImage(&img);
     return 0;
 }
 ;
+int prepareMarkers(IplImage* markers_8, IplImage markers_32) {
+    int comp_count = 0;   // numero de regiones finales;
+    CvSeq* contours = 0;
+    CvMemStorage* storage = cvCreateMemStorage(0);
+
+    cvFindContours(markers_8, storage, &contours, sizeof(CvContour), CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
+    cvZero(&markers_32);
+    for (; contours != 0; contours = contours->h_next, comp_count++) {
+        cvDrawContours(&markers_32, contours, cvScalarAll(comp_count + 1), cvScalarAll(comp_count + 1), -1, -1, 8,
+                cvPoint(0, 0));
+    }
+
+    return comp_count;
+}
+
+IplImage* paintWshed(IplImage *src, IplImage *markers, int comp_count) {
+    printf("%i", comp_count);
+    CvRNG rng = cvRNG(-1);
+    CvMat* color_tab = cvCreateMat(1, comp_count, CV_8UC3);
+    for (int i = 0; i < comp_count; i++) {
+        uchar* ptr = color_tab->data.ptr + i * 3;
+        ptr[0] = (uchar) (cvRandInt(&rng) % 180 + 50);
+        ptr[1] = (uchar) (cvRandInt(&rng) % 180 + 50);
+        ptr[2] = (uchar) (cvRandInt(&rng) % 180 + 50);
+    }
+
+    IplImage* wshed = cvCloneImage(src);
+    cvZero(wshed);
+
+    // paint the watershed image (only part of 32bit image)
+    for (int i = 0; i < markers->height; i++)
+        for (int j = 0; j < markers->width; j++) {
+            int idx = CV_IMAGE_ELEM(markers, int, i, j);
+            uchar* dst = &CV_IMAGE_ELEM(wshed, uchar, i, j * 3);
+            if (idx == -1)
+                dst[0] = dst[1] = dst[2] = (uchar) 255;
+            else if (idx <= 0 || idx > comp_count)
+                dst[0] = dst[1] = dst[2] = (uchar) 0; // should not get here
+            else {
+                uchar* ptr = color_tab->data.ptr + (idx - 1) * 3;
+                dst[0] = ptr[0];
+                dst[1] = ptr[1];
+                dst[2] = ptr[2];
+            }
+        }
+
+    return wshed;
+}
+
+void showImage(IplImage* image) {
+    cvNamedWindow("Image");
+    cvShowImage("Image",image);
+    cvWaitKey(0);
+}
+
+IplImage* createMarkers(IplImage* origin) {
+    IplImage* destImg = cvCreateImage(cvGetSize(origin), IPL_DEPTH_8U, 1);
+    IplImage* origingrayscale = cvCreateImage(cvGetSize(origin), IPL_DEPTH_8U, 1);
+    cvCvtColor(origin, origingrayscale, CV_RGB2GRAY);
+    cvThreshold(origingrayscale, destImg, 200, 255., CV_THRESH_TOZERO);
+    cvNot(destImg, destImg);
+
+    IplImage* temp = cvCloneImage(destImg);
+    cvMorphologyEx(destImg, destImg, temp, NULL, CV_MOP_OPEN,3);
+    showImage(destImg);
+    cvErode(destImg, destImg, NULL,9);
+    showImage(destImg);
+    cvThreshold(destImg, destImg, 250, 255., CV_THRESH_TOZERO);
+    showImage(destImg);
+
+    return destImg;
+}
+;
+
+void test4Watershed_b() {
+    const char* imgName = "/Users/nico/Dropbox/academia/Procesamiento Avanzado de Imagenes/TestImages/coffee_grains.jpg";
+    IplImage* src = cvLoadImage(imgName, CV_LOAD_IMAGE_UNCHANGED);
+    IplImage* gradient = cvCloneImage(src);
+    IplImage* tmp = cvCloneImage(src);
+
+    // creo el gradiente
+    cvMorphologyEx(src, gradient, tmp, NULL, CV_MOP_GRADIENT, 1);
+    //cvNamedWindow("Gradient");
+    //cvShowImage("Gradient", gradient);
+    //cvWaitKey(0);
+
+    IplImage* img2 = createMarkers(src);
+    //IplImage* img2 = cvLoadImage("/Users/nico/Dropbox/academia/Procesamiento Avanzado de Imagenes/TestImages/coffee_markers.png", CV_LOAD_IMAGE_UNCHANGED);
+    //cvNot(img2, img2);  //markers se necesitan en blanco
+    //IplImage* markers_gray = cvCreateImage(cvGetSize(img2), IPL_DEPTH_8U, 1);
+    //cvCvtColor(img2, markers_gray, CV_RGB2GRAY); //convierte de rgb a escala de grises en un canal
+    IplImage* markers_gray = img2;
+
+    IplImage* markers = cvCreateImage(cvGetSize(img2), IPL_DEPTH_32S, 1);
+    //reescala la imagen en resolucion porque el watershed necesita una imagen de 32bit de resolucion para sus movidas
+    cvScale(markers_gray, markers, 255., 0.0);
+
+    int comp_count = prepareMarkers(markers_gray, *markers);
+    //cvNamedWindow("Markers");
+    //cvShowImage("Markers", markers);
+    //cvWaitKey(0);
+
+    //aplico el watershed de la imagen original usando la de markers que genere, el watershed lo genera en markers
+    cvWatershed(src, markers);
+
+    //cvNamedWindow("T");
+    //cvShowImage("T",markers);
+    //cvWaitKey(0);
+
+    //pinto cada zona con un color distinto
+    img2 = paintWshed(src, markers, comp_count);
+
+    cvNamedWindow("Watershed transform");
+    cvShowImage("Watershed transform", img2);
+    cvWaitKey(0);
+
+    //combino las dos imagenes haciendo una suma "ponderada"
+    cvAddWeighted(img2, 0.5, src, 0.5, 0, img2);
+
+    cvShowImage("Watershed transform", img2);
+    cvWaitKey(0);
+
+}
 
 int usingWatershed(const IplImage* img) {
     IplImage *markers = cvLoadImage("/Users/nico/Downloads/TestImages/coffee_markers.png", CV_LOAD_IMAGE_UNCHANGED);
