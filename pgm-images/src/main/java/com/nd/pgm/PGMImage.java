@@ -599,4 +599,41 @@ public class PGMImage {
         }
         return outputImage;
     }
+
+    public int[][] imFlatZones(Connectivity connectivity) {
+        PGMImage outputImage = new PGMImage(this);
+        int[][] od = outputImage.getImageData();
+        IConnectivity ic = connectivity == Connectivity.EIGHTCONNECTIVITY ? new EightConnectivity() : new FourConnectivity();
+        Queue<Pixel> q = new LinkedList<>();
+        int currentFlatZone = 0;
+
+        for (int i = 0; i < od.length; i++) {
+            for (int j = 0; j < od[i].length; j++) {
+                if (od[i][j] == 0) {
+                    q.add(new Pixel(i, j));
+                    IOperator operator = new ReconstructFlatZone(od, q, ++currentFlatZone);
+                    while (q.peek() != null) {
+                        Pixel currentPixel = q.poll();
+                        ic.compute(this.getImageData(), currentPixel.getY(), currentPixel.getX(), 3, 3, operator);
+                    }
+
+                }
+            }
+        }
+
+        return od;
+    }
+
+    public int imFlatZonesNumber(Connectivity connectivity) {
+        int[][] fz = imFlatZones(connectivity);
+
+        int max = 0;
+        for (int i = 0; i < fz.length; i++) {
+            for (int j = 0; j < fz[i].length; j++) {
+                max = max > fz[i][j] ? max : fz[i][j];
+            }
+        }
+        return max;
+    }
+
 }
