@@ -238,7 +238,7 @@ public class Exercise3 {
 
         eroDilSimulator(imageSize, 2 * seSize + 1, 2 * seSize + 1, visitor);
         System.out.println("El algoritmo completo necesitó " + visitor.getOperationsCount() + " operaciones");
-        long miCalculo = imageSize * imageSize * seDimensions * seDimensions;
+        long miCalculo = (long)imageSize * imageSize * seDimensions * seDimensions;
         System.out.println("El calculo sin extremos es de " + formatter.format(miCalculo));
 
         erosionDilationRecursiveNxM(imageSize, seSize, visitor);
@@ -246,7 +246,7 @@ public class Exercise3 {
         miCalculo = 0;
         int i = seSize;
         while (i-- > 0) {
-            miCalculo += imageSize * imageSize * 3 * 3;
+            miCalculo += (long)imageSize * imageSize * 3 * 3;
         }
         System.out.println("El calculo sin extremos es de " + formatter.format(miCalculo));
 
