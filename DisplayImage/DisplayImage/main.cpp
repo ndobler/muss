@@ -14,33 +14,77 @@ void customSEs(const IplImage *img);
 int usingWatershed(const IplImage* img);
 void test4Watershed_b();
 int prepareMarkers(IplImage* markers_8, IplImage markers_32);
+double granulometry(IplImage* img, int shape, int numberOfIterations);
+void showImage(IplImage* image);
 
 int main(int argc, char** argv) {
 //    const char* imgName= "/Users/nico/Downloads/TestImages/cameraman.png";
 //    const char* imgName = "/Users/nico/Downloads/TestImages/coffee_grains.jpg";
 //    const char* imgName= "/Users/nico/Downloads/TestImages/hitchcock.png";
 //    const char* imgName= "/Users/nico/Downloads/TestImages/Lenna.png";
-//    const char* imgName= "/Users/nico/Downloads/TestImages/particles.png";
+//    const char* imgName= "/Users/nico/Dropbox/academia/Procesamiento Avanzado de Imagenes/TestImages/particles.png";
 //    const char* imgName= "/Users/nico/Downloads/TestImages/plat.jpg";
 //    const char* imgName= "/Users/nico/Downloads/TestImages/wheel.png";
 //    const char* imgName= "/Users/nico/Downloads/TestImages/white_grains.jpg";
 //    IplImage *img = cvLoadImage(imgName, CV_LOAD_IMAGE_UNCHANGED);
-    IplImage* marker = cvLoadImage("/Users/nico/Dropbox/academia/Procesamiento Avanzado de Imagenes/TestImages/coffee_markers.png", CV_LOAD_IMAGE_UNCHANGED);
-    cvNamedWindow("Original");
-    cvShowImage("Original", marker);
-    cvWaitKey(0);
-
+    /*IplImage* marker = cvLoadImage(
+     "/Users/nico/Dropbox/academia/Procesamiento Avanzado de Imagenes/TestImages/coffee_markers.png",
+     CV_LOAD_IMAGE_UNCHANGED);
+     cvNamedWindow("Original");
+     cvShowImage("Original", marker);
+     cvWaitKey(0);
+     */
     // boundaryExtraction(img);
     //myWatershed(img);
     //customSEs(img);
     // usingWatershed(img);
-    test4Watershed_b();
+    //test4Watershed_b();
     // waitKey(0);
-    cvDestroyAllWindows();
+    //  cvDestroyAllWindows();
     //cvReleaseImage(&img);
+    const char* imgName = "/Users/nico/Dropbox/academia/Procesamiento Avanzado de Imagenes/TestImages/particles.png";
+    IplImage* img = cvLoadImage(imgName, CV_LOAD_IMAGE_GRAYSCALE);
+    int imgWidth = cvGetSize(img).width;
+    int i = 1;
+
+    while (i < 10) {
+        cout << "RECT" << i << " size: " << granulometry(img, CV_SHAPE_RECT, i++) << "\n";
+    }
+    i = 1;
+    while (i < 15) {
+        cout << "Cross" << i << " size: " << granulometry(img, CV_SHAPE_CROSS, i++) << "\n";
+    }
+    i = 1;
+    while (i < 10) {
+        cout << "ELLIPSE" << i << " size: " << granulometry(img, CV_SHAPE_ELLIPSE, i++) << "\n";
+    }
     return 0;
 }
 ;
+
+double granulometry(IplImage* img, int shape, int numberOfIterations) {
+
+    IplImage* destinationImage = cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, 1);
+    IplImage* tempImage = cvCreateImage(cvGetSize(img), IPL_DEPTH_8U, 1);
+    double volumeoriginalImage = cvCountNonZero(img);
+
+    IplConvKernel* se = cvCreateStructuringElementEx(2 * numberOfIterations + 1, 2 * numberOfIterations + 1,
+            numberOfIterations, numberOfIterations, shape);
+    cvMorphologyEx(img, destinationImage, tempImage, se, CV_MOP_OPEN);
+    double volumeOpenedImage = cvCountNonZero(destinationImage);
+    double ni = (double) 1 - volumeOpenedImage / volumeoriginalImage;
+
+    se = cvCreateStructuringElementEx(2 * (numberOfIterations + 1) + 1, 2 * (numberOfIterations + 1) + 1,
+            numberOfIterations, numberOfIterations, shape);
+    cvMorphologyEx(img, destinationImage, tempImage, se, CV_MOP_OPEN);
+    volumeOpenedImage = cvCountNonZero(destinationImage);
+    double niplus1 = (double) 1 - volumeOpenedImage / volumeoriginalImage;
+
+    double g = niplus1 - ni;
+    return g;
+
+}
+
 int prepareMarkers(IplImage* markers_8, IplImage markers_32) {
     int comp_count = 0;   // numero de regiones finales;
     CvSeq* contours = 0;
@@ -92,7 +136,7 @@ IplImage* paintWshed(IplImage *src, IplImage *markers, int comp_count) {
 
 void showImage(IplImage* image) {
     cvNamedWindow("Image");
-    cvShowImage("Image",image);
+    cvShowImage("Image", image);
     cvWaitKey(0);
 }
 
@@ -104,9 +148,9 @@ IplImage* createMarkers(IplImage* origin) {
     cvNot(destImg, destImg);
 
     IplImage* temp = cvCloneImage(destImg);
-    cvMorphologyEx(destImg, destImg, temp, NULL, CV_MOP_OPEN,3);
+    cvMorphologyEx(destImg, destImg, temp, NULL, CV_MOP_OPEN, 3);
     showImage(destImg);
-    cvErode(destImg, destImg, NULL,9);
+    cvErode(destImg, destImg, NULL, 9);
     showImage(destImg);
     cvThreshold(destImg, destImg, 250, 255., CV_THRESH_TOZERO);
     showImage(destImg);
