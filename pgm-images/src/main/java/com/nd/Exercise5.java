@@ -27,23 +27,23 @@ public class Exercise5 {
         PGMImage img = new PGMImage("src/test/resources/immed_gray_inv.pgm");
 
         int size = 1;
-        PGMImage test1 = img.imOpening(size).imClosing(size);
-        PGMImage test2 = test1.imOpening(size).imClosing(size);
+        PGMImage test1 = img.imOpeningClosing(size);
+        PGMImage test2 = test1.imOpeningClosing(size);
         System.out.println("Is opening/closing size " + size + " idempotent? " + test1.equals(test2));
 
         size = 10;
-        test1 = img.imOpening(size).imClosing(size);
-        test2 = test1.imOpening(size).imClosing(size);
+        test1 = img.imOpeningClosing(size);
+        test2 = test1.imOpeningClosing(size);
         System.out.println("Is opening/closing size " + size + " idempotent? " + test1.equals(test2));
 
         size = 1;
-        test1 = img.imClosing(size).imOpening(size);
-        test2 = test1.imClosing(size).imOpening(size);
+        test1 = img.imClosingOpening(size);
+        test2 = test1.imClosingOpening(size);
         System.out.println("Is opening/closing size " + size + " idempotent? " + test1.equals(test2));
 
         size = 10;
-        test1 = img.imClosing(size).imOpening(size);
-        test2 = test1.imClosing(size).imOpening(size);
+        test1 = img.imClosingOpening(size);
+        test2 = test1.imClosingOpening(size);
         System.out.println("Is opening/closing size " + size + " idempotent? " + test1.equals(test2));
 
     }
