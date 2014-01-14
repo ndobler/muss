@@ -1,6 +1,7 @@
 package com.nd.pgm;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -361,7 +362,7 @@ public class PGMImage {
     /**
      * Normalize image to the full range of 0..highestDensityValue
      * 
-     * Ercercise 2.5
+     * Exercise 2.5
      * 
      * @return the normalized image
      */
@@ -412,7 +413,7 @@ public class PGMImage {
     }
 
     /**
-     * Use a recursive algorith to compute an erosion of an image using a structuring element
+     * Use a recursive algorithm to compute an erosion of an image using a structuring element
      * 
      * Exercise 3.1 and 3.2.
      * 
@@ -427,7 +428,7 @@ public class PGMImage {
     }
 
     /**
-     * Use a recursive algorith to compute a dilation of an image using a structuring element
+     * Use a recursive algorithm to compute a dilation of an image using a structuring element
      * 
      * Exercise 3.1 and 3.2.
      * 
@@ -464,7 +465,7 @@ public class PGMImage {
     }
 
     /**
-     * Calculates erosions and dilations with NxM structuring elements dividing the operation in two 1xM and Nx1
+     * Calculates erotions and dilations with NxM structuring elements dividing the operation in two 1xM and Nx1
      * operations.
      * 
      * Exercise 3.4
@@ -627,6 +628,10 @@ public class PGMImage {
     public int imFlatZonesNumber(Connectivity connectivity) {
         int[][] fz = imFlatZones(connectivity);
 
+        return getFlatZonesCount(fz);
+    }
+
+    private int getFlatZonesCount(int[][] fz) {
         int max = 0;
         for (int i = 0; i < fz.length; i++) {
             for (int j = 0; j < fz[i].length; j++) {
@@ -636,4 +641,36 @@ public class PGMImage {
         return max;
     }
 
+    public PGMImage imMaxima() {
+        return imExtreme(new SupOperator());
+    }
+
+    public PGMImage imMinima() {
+        return imExtreme(new InfOperator());
+    }
+
+    private PGMImage imExtreme(IOperator operator) {
+        IConnectivity ec = new EightConnectivity();
+        Connectivity eightconnectivity = Connectivity.EIGHTCONNECTIVITY;
+        int[][] fz = imFlatZones(eightconnectivity);
+        boolean[] isExtreme = new boolean[getFlatZonesCount(fz) + 1];
+        Arrays.fill(isExtreme, true);
+        for (int i = 0; i < this.imageData.length; i++) {
+            for (int j = 0; j < this.imageData[i].length; j++) {
+                int pvalue = ec.compute(this.imageData, i, j, 3, 3, operator);
+                if (pvalue != this.imageData[i][j]) {
+                    isExtreme[fz[i][j]] = false;
+                }
+            }
+        }
+        PGMImage oi = new PGMImage(this);
+        int[][] od = oi.getImageData();
+        for (int i = 0; i < od.length; i++) {
+            for (int j = 0; j < od[i].length; j++) {
+                if (isExtreme[fz[i][j]])
+                    od[i][j] = this.highestDensityValue;
+            }
+        }
+        return oi;
+    }
 }

@@ -73,16 +73,19 @@ public class Exercise6 {
      * 
      * (b) the gray-level image immed_gray_inv.pgm has 12488 flat zones with 8-connectivity (with 4-connectivity, 16909
      * flat zones).
-     * @throws IOException 
+     * 
+     * @throws IOException
      */
     public static void exercise62() throws IOException {
         PGMImage img1 = new PGMImage("src/test/resources/immed_gray_inv_20051218_thresh127.pgm");
         PGMImage img2 = new PGMImage("src/test/resources/immed_gray_inv.pgm");
-        
-        System.out.println("La cantidad de flatzones en immed_gray_inv_20051218_thresh127 con 8connectivity es " + img1.imFlatZonesNumber(Connectivity.EIGHTCONNECTIVITY) );
-        System.out.println("La cantidad de flatzones en immed_gray_inv_20051218_thresh127 con 4connectivity es " + img1.imFlatZonesNumber(Connectivity.FOURCONNECTIVITY) );
-        System.out.println("La cantidad de flatzones en immed_gray_inv con 8connectivity es " + img2.imFlatZonesNumber(Connectivity.EIGHTCONNECTIVITY) );
-        System.out.println("La cantidad de flatzones en immed_gray_inv con 4connectivity es " + img2.imFlatZonesNumber(Connectivity.FOURCONNECTIVITY) );
+
+        System.out.println("La cantidad de flatzones en immed_gray_inv_20051218_thresh127 con 8connectivity es "
+                + img1.imFlatZonesNumber(Connectivity.EIGHTCONNECTIVITY));
+        System.out.println("La cantidad de flatzones en immed_gray_inv_20051218_thresh127 con 4connectivity es "
+                + img1.imFlatZonesNumber(Connectivity.FOURCONNECTIVITY));
+        System.out.println("La cantidad de flatzones en immed_gray_inv con 8connectivity es " + img2.imFlatZonesNumber(Connectivity.EIGHTCONNECTIVITY));
+        System.out.println("La cantidad de flatzones en immed_gray_inv con 4connectivity es " + img2.imFlatZonesNumber(Connectivity.FOURCONNECTIVITY));
     }
 
     /**
@@ -103,7 +106,21 @@ public class Exercise6 {
      * -immed_gray_inv_20051218_frgr4_max.pgm (regional maxima, with 8-connectivity)
      * 
      * -immed_gray_inv_20051218_frgr4_min.pgm (regional minima, with 8-connectivity)
+     * 
+     * @throws IOException
+     * @throws PGMImageException
      */
-    public static void exercise63() {
+    public static void exercise63() throws IOException, PGMImageException {
+        PGMImage im = new PGMImage("src/test/resources/immed_gray_inv_20051218_frgr4.pgm");
+        PGMImage maxima = im.imMaxima();
+        maxima.saveImage("target/maxima.pgm");
+        PGMImage testMaxima = new PGMImage("src/test/resources/immed_gray_inv_20051218_frgr4_max.pgm");
+        System.out.println("Test regional maxima " + maxima.equals(testMaxima));
+
+        PGMImage minima = im.imMinima();
+        minima.saveImage("target/minima.pgm");
+        PGMImage testMinima = new PGMImage("src/test/resources/immed_gray_inv_20051218_frgr4_min.pgm");
+        System.out.println("Test regional minima " + minima.equals(testMinima));
+
     }
 }
