@@ -14,9 +14,9 @@ public class Exercise4 {
         try {
             System.out.println("Exercise 4.1: Openings and closings\n");
             exercise41();
-            System.out.println("\nExercise 4.1: Alternated filtering\n");
+            System.out.println("\nExercise 4.2: Alternated filtering\n");
             exercise42();
-            System.out.println("\nExercise 4.1: Noise removal\n");
+            System.out.println("\nExercise 4.3: Noise removal\n");
             exercise43();
         } catch (IOException | PGMImageException e) {
             e.printStackTrace();
